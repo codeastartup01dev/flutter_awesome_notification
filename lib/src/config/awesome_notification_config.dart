@@ -133,6 +133,20 @@ class FlutterAwesomeNotificationConfig {
   /// Enable debug logging
   final bool enableLogging;
 
+  /// Enable Firebase background message handler
+  ///
+  /// If true (default), plugin registers its own background handler
+  /// If false, you can register your own custom background handler
+  ///
+  /// ⚠️ WARNING: When disabled, the following features won't work:
+  /// - Background notification filtering (self-notifications, chat room filtering)
+  /// - Automatic notification display in background/terminated state
+  /// - Background isolate notification handling
+  ///
+  /// Use case: Disable this if you need custom background message processing
+  /// that's incompatible with the plugin's approach
+  final bool enableBackgroundHandler;
+
   /// Request permission on initialization
   final bool requestPermissionOnInit;
 
@@ -184,6 +198,7 @@ class FlutterAwesomeNotificationConfig {
 
     // Advanced
     this.enableLogging = kDebugMode,
+    this.enableBackgroundHandler = true,
     this.requestPermissionOnInit = true,
     this.showAlertInForeground = true,
     this.showBadgeInForeground = true,
@@ -215,6 +230,7 @@ class FlutterAwesomeNotificationConfig {
     Map<String, String>? notificationTypeToPage,
     List<String>? allowedNotificationTypes,
     bool? enableLogging,
+    bool? enableBackgroundHandler,
     bool? requestPermissionOnInit,
     bool? showAlertInForeground,
     bool? showBadgeInForeground,
@@ -249,6 +265,8 @@ class FlutterAwesomeNotificationConfig {
       allowedNotificationTypes:
           allowedNotificationTypes ?? this.allowedNotificationTypes,
       enableLogging: enableLogging ?? this.enableLogging,
+      enableBackgroundHandler:
+          enableBackgroundHandler ?? this.enableBackgroundHandler,
       requestPermissionOnInit:
           requestPermissionOnInit ?? this.requestPermissionOnInit,
       showAlertInForeground:

@@ -67,8 +67,17 @@ class FlutterAwesomeNotification {
 
     _config = config;
 
-    // Register background message handler FIRST
-    _registerBackgroundHandler();
+    // Register background message handler FIRST (if enabled)
+    if (config.enableBackgroundHandler) {
+      _registerBackgroundHandler();
+    } else {
+      NotificationLogger.w(
+        '⚠️ Background handler DISABLED - You can register your own custom handler',
+      );
+      NotificationLogger.w(
+        '⚠️ Plugin features disabled: background filtering, auto-display in background/terminated',
+      );
+    }
 
     // Save environment to SharedPreferences for background handler
     if (config.environment != null) {

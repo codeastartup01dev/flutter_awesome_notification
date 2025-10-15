@@ -64,6 +64,65 @@ void main() async {
 
 That's it! You now have full notification support with just a few lines of code.
 
+## ⚠️ Critical: Background Handler Conflict
+
+**IMPORTANT:** This plugin registers its own Firebase Messaging background handler. 
+
+**DO NOT** register your own background handler in your app:
+
+```dart
+// ❌ NEVER DO THIS when using flutter_awesome_notification:
+FirebaseMessaging.onBackgroundMessage(myBackgroundHandler);
+```
+
+**Why?**
+- Firebase allows **ONLY ONE** background handler
+- Registering your own will **overwrite** the plugin's handler
+- This will **break** background notifications and filtering
+
+**Instead:** Use the plugin's callbacks:
+```dart
+FlutterAwesomeNotificationConfig(
+  onNotificationTap: (data) {
+    // Your custom handling when notification is tapped
+  },
+  onNavigate: (pageName, id, data) {
+    // Your custom navigation logic
+  },
+)
+```
+
+**For detailed explanation:** See [FIREBASE_MESSAGING_CONFLICTS.md](FIREBASE_MESSAGING_CONFLICTS.md)
+
+**✅ You CAN still:**
+- Get device token: `FirebaseMessaging.instance.getToken()`
+- Subscribe to topics: `FirebaseMessaging.instance.subscribeToTopic()`
+- Listen to foreground messages: `FirebaseMessaging.onMessage.listen()`
+- Check permissions: `FirebaseMessaging.instance.getNotificationSettings()`
+
+### 🔧 Advanced: Use Your Own Background Handler
+
+If you need complete control over background message handling, you can disable the plugin's background handler:
+
+```dart
+FlutterAwesomeNotificationConfig(
+  enableBackgroundHandler: false, // ⚠️ Disable plugin's handler
+  // ...
+)
+
+// Then register your own:
+FirebaseMessaging.onBackgroundMessage(myCustomHandler);
+```
+
+**⚠️ Warning:** When disabled, you lose:
+- Background filtering (self-notifications, chat room filtering)
+- Automatic notification display in background/terminated state
+- Background isolate handling
+
+**See:** [CUSTOM_BACKGROUND_HANDLER.md](CUSTOM_BACKGROUND_HANDLER.md) for complete guide
+
+**Recommendation:** Use the default (`true`) unless you have specific custom requirements.
+
 ## 📖 Configuration
 
 ### Complete Configuration Example
