@@ -119,7 +119,25 @@ FirebaseMessaging.onBackgroundMessage(myCustomHandler);
 - Automatic notification display in background/terminated state
 - Background isolate handling
 
-**See:** [CUSTOM_BACKGROUND_HANDLER.md](CUSTOM_BACKGROUND_HANDLER.md) for complete guide
+**💡 What if you DON'T register a custom handler?**
+
+**Answer:** Navigation still works, BUT:
+- **Foreground:** ✅ Everything works perfectly
+- **Background/Terminated:** ⚠️ Notifications ONLY appear if your FCM payload has a `notification` field (not just `data`)
+- **Data-only messages:** ❌ Won't show in background/terminated
+- **Filtering:** ❌ Won't work in background/terminated
+
+**Required FCM payload format:**
+```json
+{
+  "notification": {"title": "...", "body": "..."},  // ⚠️ REQUIRED
+  "data": {"pageName": "...", "id": "..."}
+}
+```
+
+**See:** 
+- [CUSTOM_BACKGROUND_HANDLER.md](CUSTOM_BACKGROUND_HANDLER.md) for custom handler guide
+- [BEHAVIOR_WITHOUT_BACKGROUND_HANDLER.md](BEHAVIOR_WITHOUT_BACKGROUND_HANDLER.md) for detailed behavior explanation
 
 **Recommendation:** Use the default (`true`) unless you have specific custom requirements.
 
