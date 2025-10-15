@@ -21,6 +21,26 @@ typedef NavigationHandler =
 /// Logger callback for custom logging
 typedef LoggerCallback = void Function(String message, {Object? error});
 
+/// External logger interface for unified logging
+/// Compatible with flutter_awesome_logger and other logging solutions
+/// Example:
+/// ```dart
+/// class MyLogger {
+///   void d(String message) => print('DEBUG: $message');
+///   void i(String message) => print('INFO: $message');
+///   void w(String message) => print('WARNING: $message');
+///   void e(String message, {dynamic error, StackTrace? stackTrace}) {
+///     print('ERROR: $message');
+///   }
+/// }
+/// ```
+abstract class ExternalLogger {
+  void d(String message);
+  void i(String message);
+  void w(String message);
+  void e(String message, {dynamic error, StackTrace? stackTrace});
+}
+
 /// Comprehensive configuration for FlutterAwesomeNotification
 ///
 /// Provides sensible defaults while allowing full customization
@@ -65,8 +85,17 @@ class FlutterAwesomeNotificationConfig {
   /// Custom notification filter
   final NotificationFilterCallback? customFilter;
 
-  /// Custom logger
+  /// Custom logger callback (legacy support)
+  /// For new code, prefer using externalLogger
   final LoggerCallback? logger;
+
+  /// External logger instance for unified logging
+  /// Compatible with flutter_awesome_logger and other logging solutions
+  /// Example: Pass your app's logger instance directly
+  /// ```dart
+  /// externalLogger: logger, // Your flutter_awesome_logger instance
+  /// ```
+  final dynamic externalLogger;
 
   // =============================================================================
   // FILTERING CONFIGURATION
@@ -143,6 +172,7 @@ class FlutterAwesomeNotificationConfig {
     this.getCurrentUserId,
     this.customFilter,
     this.logger,
+    this.externalLogger,
 
     // Filtering
     this.enableActionStepFiltering = true,
@@ -177,6 +207,7 @@ class FlutterAwesomeNotificationConfig {
     GetCurrentUserIdCallback? getCurrentUserId,
     NotificationFilterCallback? customFilter,
     LoggerCallback? logger,
+    dynamic externalLogger,
     bool? enableActionStepFiltering,
     bool? enableChatRoomFiltering,
     bool Function(String)? isActiveChatRoom,
@@ -206,6 +237,7 @@ class FlutterAwesomeNotificationConfig {
       getCurrentUserId: getCurrentUserId ?? this.getCurrentUserId,
       customFilter: customFilter ?? this.customFilter,
       logger: logger ?? this.logger,
+      externalLogger: externalLogger ?? this.externalLogger,
       enableActionStepFiltering:
           enableActionStepFiltering ?? this.enableActionStepFiltering,
       enableChatRoomFiltering:

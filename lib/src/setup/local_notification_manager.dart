@@ -142,8 +142,6 @@ class LocalNotificationManager {
         scheduledDateTime,
         config.standardNotificationDetails,
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
         payload: jsonEncode(data),
       );
 

@@ -98,10 +98,17 @@ await FlutterAwesomeNotification.initialize(
       // Return true to show, false to hide
       return true;
     },
-    logger: (message, {error}) {
-      // Custom logger
-      myLogger.log(message, error: error);
-    },
+    
+    // Logging Options
+    
+    // Option 1: External logger (recommended - unified logging)
+    // Compatible with flutter_awesome_logger and other logging solutions
+    externalLogger: logger, // Your logger instance with d(), i(), w(), e() methods
+    
+    // Option 2: Logger callback (legacy support)
+    // logger: (message, {error}) {
+    //   myLogger.log(message, error: error);
+    // },
 
     // Filtering Options
     enableActionStepFiltering: true,
@@ -218,6 +225,46 @@ if (!enabled) {
   await notificationService.requestPermissions();
 }
 ```
+
+### Unified Logging with External Logger
+
+The plugin supports external logger instances for unified logging across your app:
+
+```dart
+// 1. Create or use your existing logger instance
+class MyLogger {
+  void d(String message) => print('🔍 DEBUG: $message');
+  void i(String message) => print('ℹ️ INFO: $message');
+  void w(String message) => print('⚠️ WARNING: $message');
+  void e(String message, {dynamic error, StackTrace? stackTrace}) {
+    print('❌ ERROR: $message');
+    if (error != null) print('Error: $error');
+  }
+}
+
+final logger = MyLogger();
+
+// 2. Pass it to the plugin during initialization
+await FlutterAwesomeNotification.initialize(
+  config: FlutterAwesomeNotificationConfig(
+    firebaseOptions: DefaultFirebaseOptions.currentPlatform,
+    enableLogging: true,
+    externalLogger: logger, // 🎯 Your logger instance
+  ),
+);
+```
+
+**Benefits:**
+- ✅ Unified logging across all plugins (deeplink, notification, etc.)
+- ✅ Compatible with `flutter_awesome_logger` and other logging solutions
+- ✅ Consistent log format and filtering
+- ✅ No need for custom callbacks
+
+**Supported Log Levels:**
+- `d()` - Debug messages (initialization, state changes)
+- `i()` - Info messages (successful operations)
+- `w()` - Warning messages (non-critical issues)
+- `e()` - Error messages (failures, exceptions)
 
 ## 🔍 How It Works
 

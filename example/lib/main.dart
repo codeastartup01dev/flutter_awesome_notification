@@ -4,8 +4,24 @@ import 'package:flutter_awesome_notification/flutter_awesome_notification.dart';
 
 import 'firebase_options.dart';
 
+// Example: Create a simple logger for demonstration
+// In a real app, you would use flutter_awesome_logger or your preferred logging solution
+class ExampleLogger {
+  void d(String message) => debugPrint('🔍 DEBUG: $message');
+  void i(String message) => debugPrint('ℹ️ INFO: $message');
+  void w(String message) => debugPrint('⚠️ WARNING: $message');
+  void e(String message, {dynamic error, StackTrace? stackTrace}) {
+    debugPrint('❌ ERROR: $message');
+    if (error != null) debugPrint('Error details: $error');
+    if (stackTrace != null) debugPrint('Stack trace: $stackTrace');
+  }
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Create logger instance (in real app, use flutter_awesome_logger)
+  final logger = ExampleLogger();
 
   // Initialize the notification service BEFORE Firebase
   await FlutterAwesomeNotification.initialize(
@@ -28,14 +44,9 @@ void main() async {
       // Enable logging for demo
       enableLogging: true,
 
-      // Custom logger
-      logger: (message, {error}) {
-        if (error != null) {
-          debugPrint('🔔 $message | Error: $error');
-        } else {
-          debugPrint('🔔 $message');
-        }
-      },
+      // External logger for unified logging
+      externalLogger:
+          logger, // 🎯 Pass your logger instance for unified logging
     ),
   );
 
