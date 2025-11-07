@@ -8,8 +8,8 @@ A comprehensive, production-ready notification plugin for Flutter apps with Fire
 
 ## ✨ Features
 
-- ✅ **Foreground Notification Handling**: Intelligent filtering and display when app is active
-- ✅ **Intelligent Filtering**: Action step, chat room, and custom notification filtering
+- ✅ **Foreground Notification Handling**: Display notifications when app is active
+- ✅ **Custom Filtering**: Flexible callback-based filtering for app-specific logic
 - ✅ **Navigation Integration**: Seamless navigation across all app states (foreground/background/terminated)
 - ✅ **Topic Subscriptions**: Easy FCM topic management
 - ✅ **Local Notifications**: Immediate and scheduled local notifications
@@ -100,13 +100,19 @@ await FlutterAwesomeNotification.initialize(
       // Custom navigation
       // Example: GoRouter.of(context).push('/$pageName/$id');
     },
-    getCurrentUserId: () {
-      // Return current user ID for filtering
-      return userCubit.getUserModel()?.id;
-    },
     customFilter: (messageData) async {
-      // Custom filtering logic
-      // Return true to show, false to hide
+      // Your app-specific filtering logic
+      // Example: Filter notifications based on type and user
+      final type = messageData['type'];
+      final excludeUserId = messageData['excludeUserId'];
+      final currentUserId = getCurrentUserId();
+      
+      // Don't show user's own action notifications
+      if (type == 'action_step_completion' && excludeUserId == currentUserId) {
+        return false; // Don't show
+      }
+      
+      // Show all other notifications
       return true;
     },
     
@@ -120,22 +126,6 @@ await FlutterAwesomeNotification.initialize(
     // logger: (message, {error}) {
     //   myLogger.log(message, error: error);
     // },
-
-    // Filtering Options
-    enableActionStepFiltering: true,
-    enableChatRoomFiltering: true,
-    isActiveChatRoom: (chatRoomId) {
-      // Check if user is currently in this chat room
-      return appCubit.isActiveChatRoom(chatRoomId);
-    },
-    chatPageRoute: 'chat-page',
-
-    // Notification Types
-    notificationTypeToPage: {
-      'action_step': 'challenge-details',
-      'chat_message': 'chat-room',
-      'event_reminder': 'event-details',
-    },
 
     // Advanced
     enableLogging: true,
@@ -328,14 +318,30 @@ await FlutterAwesomeNotification.initialize(
 }
 ```
 
-### Filtering System
+### Custom Filtering
 
-The plugin provides multiple layers of filtering:
+The plugin provides a flexible filtering system via the `customFilter` callback:
 
-1. **Action Step Filtering**: Prevents users from seeing their own action notifications
-2. **Chat Room Filtering**: Hides notifications when user is in the chat room
-3. **Custom Filtering**: Your own logic via callback
-4. **Type Filtering**: Filter by notification type
+```dart
+customFilter: (messageData) async {
+  // Implement your app-specific filtering logic here
+  // Return true to show notification, false to hide it
+  
+  // Example: Filter by notification type
+  final type = messageData['type'];
+  if (type == 'spam') return false;
+  
+  // Example: Filter by user
+  final userId = messageData['userId'];
+  if (userId == currentUserId) return false;
+  
+  // Example: Filter by app state
+  final chatRoomId = messageData['chatRoomId'];
+  if (isUserInChatRoom(chatRoomId)) return false;
+  
+  return true; // Show by default
+}
+```
 
 ## 🔄 Migration Guide
 

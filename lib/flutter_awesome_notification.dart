@@ -87,3 +87,5 @@ export 'src/config/awesome_notification_config.dart';
 // Type exports
 export 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 export 'package:firebase_messaging/firebase_messaging.dart' show RemoteMessage;
+export 'package:flutter_local_notifications/flutter_local_notifications.dart'
+    show NotificationDetails, AndroidNotificationDetails, DarwinNotificationDetails;

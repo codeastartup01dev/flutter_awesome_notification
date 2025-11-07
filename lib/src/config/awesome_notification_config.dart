@@ -81,7 +81,20 @@ class FlutterAwesomeNotificationConfig {
   /// Get current user ID for filtering
   final GetCurrentUserIdCallback? getCurrentUserId;
 
-  /// Custom notification filter
+  /// Custom notification filter callback
+  /// Return true to show notification, false to hide it
+  /// All filtering logic should be app-specific and provided here
+  /// 
+  /// Example:
+  /// ```dart
+  /// customFilter: (messageData) async {
+  ///   // Your app-specific filtering logic
+  ///   final type = messageData['type'];
+  ///   final userId = messageData['excludeUserId'];
+  ///   // Return true to show, false to hide
+  ///   return shouldShowNotification(type, userId);
+  /// }
+  /// ```
   final NotificationFilterCallback? customFilter;
 
   /// Custom logger callback (legacy support)
@@ -95,35 +108,6 @@ class FlutterAwesomeNotificationConfig {
   /// externalLogger: logger, // Your flutter_awesome_logger instance
   /// ```
   final dynamic externalLogger;
-
-  // =============================================================================
-  // FILTERING CONFIGURATION
-  // =============================================================================
-
-  /// Enable action step completion filtering
-  /// Prevents users from seeing their own action notifications
-  final bool enableActionStepFiltering;
-
-  /// Enable chat room filtering
-  /// Prevents notifications when user is in the chat room
-  final bool enableChatRoomFiltering;
-
-  /// Check if user is in a specific chat room
-  final bool Function(String chatRoomId)? isActiveChatRoom;
-
-  /// Chat page route name for filtering
-  final String? chatPageRoute;
-
-  // =============================================================================
-  // NOTIFICATION TYPES
-  // =============================================================================
-
-  /// Map of notification types to handle
-  /// Example: {'action_step': 'challenge-details', 'chat': 'chat-room'}
-  final Map<String, String> notificationTypeToPage;
-
-  /// Custom notification types to filter
-  final List<String> allowedNotificationTypes;
 
   // =============================================================================
   // ADVANCED CONFIGURATION
@@ -169,14 +153,6 @@ class FlutterAwesomeNotificationConfig {
     this.logger,
     this.externalLogger,
 
-    // Filtering
-    this.enableActionStepFiltering = true,
-    this.enableChatRoomFiltering = false,
-    this.isActiveChatRoom,
-    this.chatPageRoute,
-    this.notificationTypeToPage = const {},
-    this.allowedNotificationTypes = const [],
-
     // Advanced
     this.enableLogging = kDebugMode,
     this.requestPermissionOnInit = true,
@@ -201,12 +177,6 @@ class FlutterAwesomeNotificationConfig {
     NotificationFilterCallback? customFilter,
     LoggerCallback? logger,
     dynamic externalLogger,
-    bool? enableActionStepFiltering,
-    bool? enableChatRoomFiltering,
-    bool Function(String)? isActiveChatRoom,
-    String? chatPageRoute,
-    Map<String, String>? notificationTypeToPage,
-    List<String>? allowedNotificationTypes,
     bool? enableLogging,
     bool? requestPermissionOnInit,
     bool? showAlertInForeground,
@@ -229,16 +199,6 @@ class FlutterAwesomeNotificationConfig {
       customFilter: customFilter ?? this.customFilter,
       logger: logger ?? this.logger,
       externalLogger: externalLogger ?? this.externalLogger,
-      enableActionStepFiltering:
-          enableActionStepFiltering ?? this.enableActionStepFiltering,
-      enableChatRoomFiltering:
-          enableChatRoomFiltering ?? this.enableChatRoomFiltering,
-      isActiveChatRoom: isActiveChatRoom ?? this.isActiveChatRoom,
-      chatPageRoute: chatPageRoute ?? this.chatPageRoute,
-      notificationTypeToPage:
-          notificationTypeToPage ?? this.notificationTypeToPage,
-      allowedNotificationTypes:
-          allowedNotificationTypes ?? this.allowedNotificationTypes,
       enableLogging: enableLogging ?? this.enableLogging,
       requestPermissionOnInit:
           requestPermissionOnInit ?? this.requestPermissionOnInit,

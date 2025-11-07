@@ -1,3 +1,89 @@
+## 1.1.0
+
+### ✨ Generic Plugin Refactoring
+
+This major update makes the plugin truly generic and reusable across any Flutter application by removing app-specific filtering logic and making it configurable via callbacks.
+
+#### 🆕 New Features
+
+- **Generic Filtering System**: All filtering logic moved to app-specific `customFilter` callback
+- **Custom Notification Details**: Support for custom `NotificationDetails` per notification for different urgency levels
+- **Enhanced API**: Added optional `notificationDetails` parameter to `showLocalNotification()` and `scheduleNotification()`
+
+#### 🔧 Improvements
+
+- **Plugin Reusability**: Can now be used in any Flutter app without modification
+- **Simplified Configuration**: Removed app-specific config options (`enableActionStepFiltering`, `enableChatRoomFiltering`, etc.)
+- **Better Documentation**: Updated README with generic usage examples
+- **Type Safety**: Exported `NotificationDetails`, `AndroidNotificationDetails`, `DarwinNotificationDetails` types
+
+#### 🛠️ Breaking Changes
+
+- **Configuration Simplification**: Removed the following config options (now handled by `customFilter`):
+  - `enableActionStepFiltering`
+  - `enableChatRoomFiltering`
+  - `isActiveChatRoom`
+  - `chatPageRoute`
+  - `notificationTypeToPage`
+  - `allowedNotificationTypes`
+
+- **Filtering Logic**: All app-specific filtering must now be implemented in the `customFilter` callback
+
+#### 📝 Migration Guide
+
+**Before (1.0.0):**
+```dart
+FlutterAwesomeNotificationConfig(
+  firebaseOptions: DefaultFirebaseOptions.currentPlatform,
+  enableActionStepFiltering: true,
+  enableChatRoomFiltering: true,
+  isActiveChatRoom: (roomId) => checkIfActive(roomId),
+  chatPageRoute: 'chat-page',
+)
+```
+
+**After (1.1.0):**
+```dart
+FlutterAwesomeNotificationConfig(
+  firebaseOptions: DefaultFirebaseOptions.currentPlatform,
+  customFilter: (messageData) async {
+    // Your app-specific filtering logic
+    final type = messageData['type'];
+    final userId = messageData['excludeUserId'];
+    final currentUserId = getCurrentUserId();
+
+    // Don't show user's own actions
+    if (type == 'action_step_completion' && userId == currentUserId) {
+      return false; // Filter out
+    }
+
+    // Don't show notifications when user is in chat
+    final pageName = messageData['pageName'];
+    if (pageName == 'chat-page' && isUserInChat(messageData['id'])) {
+      return false; // Filter out
+    }
+
+    return true; // Show notification
+  },
+)
+```
+
+#### 📚 Documentation Updates
+
+- Updated README with generic examples
+- Added migration guide for existing users
+- Improved configuration documentation
+- Added filtering examples
+
+#### ✅ Benefits
+
+- **Universal Plugin**: Can be used in any Flutter app
+- **Flexible Filtering**: Apps implement their own business logic
+- **Simplified Maintenance**: Plugin focuses on infrastructure, not business rules
+- **Better Architecture**: Separation of concerns between plugin and app logic
+
+---
+
 ## 1.0.0
 
 ### 🚀 Stable Release

@@ -98,18 +98,21 @@ class LocalNotificationManager {
   }
 
   /// Show immediate notification with custom data
+  /// 
+  /// Allows custom notification details for different urgency levels
   Future<void> showImmediateNotification({
     required int id,
     required String title,
     required String body,
     required Map<String, dynamic> data,
+    NotificationDetails? notificationDetails,
   }) async {
     try {
       await flutterLocalNotificationsPlugin.show(
         id,
         title,
         body,
-        config.standardNotificationDetails,
+        notificationDetails ?? config.standardNotificationDetails,
         payload: jsonEncode(data),
       );
 
@@ -125,12 +128,15 @@ class LocalNotificationManager {
   }
 
   /// Schedule a notification for later
+  /// 
+  /// Allows custom notification details for different urgency levels
   Future<void> scheduleNotification({
     required int id,
     required String title,
     required String body,
     required DateTime scheduledDate,
     required Map<String, dynamic> data,
+    NotificationDetails? notificationDetails,
   }) async {
     try {
       final scheduledDateTime = tz.TZDateTime.from(scheduledDate, tz.local);
@@ -140,7 +146,7 @@ class LocalNotificationManager {
         title,
         body,
         scheduledDateTime,
-        config.standardNotificationDetails,
+        notificationDetails ?? config.standardNotificationDetails,
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         payload: jsonEncode(data),
       );

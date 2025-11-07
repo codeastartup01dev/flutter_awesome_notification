@@ -330,27 +330,34 @@ class FlutterAwesomeNotification {
   }
 
   /// Show a local notification immediately
+  /// 
+  /// Optionally pass custom notificationDetails for different urgency levels
   Future<void> showLocalNotification({
     required int id,
     required String title,
     required String body,
     Map<String, dynamic>? data,
+    NotificationDetails? notificationDetails,
   }) async {
     await _localNotificationManager.showImmediateNotification(
       id: id,
       title: title,
       body: body,
       data: data ?? {},
+      notificationDetails: notificationDetails,
     );
   }
 
   /// Schedule a local notification
+  /// 
+  /// Optionally pass custom notificationDetails for different urgency levels
   Future<void> scheduleNotification({
     required int id,
     required String title,
     required String body,
     required DateTime scheduledDate,
     Map<String, dynamic>? data,
+    NotificationDetails? notificationDetails,
   }) async {
     await _localNotificationManager.scheduleNotification(
       id: id,
@@ -358,6 +365,7 @@ class FlutterAwesomeNotification {
       body: body,
       scheduledDate: scheduledDate,
       data: data ?? {},
+      notificationDetails: notificationDetails,
     );
   }
 
