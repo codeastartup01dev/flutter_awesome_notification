@@ -1,5 +1,5 @@
 name: flutter_awesome_notification
-description: "A comprehensive notification plugin for Flutter with FCM, local notifications, intelligent filtering, and background handling."
+description: "A comprehensive notification plugin for Flutter with FCM, local notifications, and intelligent filtering."
 version: 0.0.1
 homepage: https://github.com/yourusername/flutter_awesome_notification
 
@@ -19,8 +19,6 @@ dependencies:
   flutter_local_notifications: ^19.1.0
   timezone: ^0.10.1
   
-  # Persistent storage for background filtering
-  shared_preferences: ^2.2.2
   
   # Platform interface
   plugin_platform_interface: ^2.0.2

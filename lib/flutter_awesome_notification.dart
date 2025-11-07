@@ -3,7 +3,7 @@
 /// A comprehensive, production-ready notification system for Flutter apps
 /// with Firebase Cloud Messaging (FCM) and local notifications.
 ///
-/// Handles all app states (foreground, background, terminated) with
+/// Handles foreground notifications and app state transitions with
 /// intelligent filtering and navigation.
 ///
 /// ## Quick Start
@@ -40,7 +40,7 @@
 ///
 /// ## Features
 ///
-/// - ✅ Foreground, background, and terminated app state handling
+/// - ✅ Foreground notification handling
 /// - ✅ Intelligent notification filtering (action steps, chat rooms, etc.)
 /// - ✅ Custom navigation handling
 /// - ✅ Topic-based subscriptions
@@ -79,7 +79,6 @@
 ///   scheduledDate: DateTime.now().add(Duration(hours: 1)),
 /// );
 /// ```
-library flutter_awesome_notification;
 
 // Core exports
 export 'src/core/flutter_awesome_notification.dart';

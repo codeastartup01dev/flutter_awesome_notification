@@ -5,13 +5,22 @@ import 'package:flutter_awesome_notification/flutter_awesome_notification.dart';
 
 import 'firebase_options.dart';
 
-/// Example: Using a custom background handler
+/// Example: Custom Background Message Handler
 ///
-/// This example shows how to disable the plugin's background handler
-/// and use your own custom handler instead.
+/// This example demonstrates using a custom background message handler
+/// alongside the plugin's foreground notification system.
 ///
-/// Use case: When you need custom background message processing
-/// that's incompatible with the plugin's approach.
+/// ## What This Example Shows:
+/// - ✅ Custom background message processing
+/// - ✅ Foreground notifications via plugin
+/// - ✅ System notifications in background/terminated
+/// - ✅ Navigation works in all app states
+///
+/// ## Important Notes:
+/// - Plugin handles ONLY foreground notifications
+/// - Background/terminated use system notifications (require `notification` field in FCM)
+/// - Custom handler processes messages but doesn't show notifications
+/// - Navigation works when user taps notifications in any app state
 
 // 1. Define your custom background handler
 // MUST be a top-level function with @pragma annotation
@@ -26,60 +35,61 @@ Future<void> myCustomBackgroundHandler(RemoteMessage message) async {
   debugPrint('📝 Body: ${message.notification?.body}');
   debugPrint('📦 Data: ${message.data}');
 
-  // Your custom logic here
-  // Examples:
+  // Your custom logic here - this runs in background isolate
+  // Examples of what you can do:
   // - Custom filtering based on your criteria
-  // - Database sync in background
+  // - Database operations and sync
   // - Analytics tracking
-  // - Custom notification display logic
+  // - API calls to your server
   // - Business logic processing
 
-  // Example: Only process messages of specific type
+  // Example: Process only important messages
   if (message.data['type'] == 'important') {
-    debugPrint('✅ Important message - processing');
-    // Your processing logic here
+    debugPrint('✅ Processing important background message');
+    // Your background processing logic here
+    // e.g., update local database, send analytics, etc.
   } else {
-    debugPrint('ℹ️ Regular message - skipping');
+    debugPrint('ℹ️ Skipping regular background message');
   }
 
-  // Note: You'll need to manually show notifications
-  // The plugin's automatic display won't work when background handler is disabled
+  // NOTE: This handler processes messages but does NOT show notifications
+  // For notifications in background/terminated states, FCM payload must include 'notification' field
+  // The plugin handles foreground notifications, system handles background/terminated
 }
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 2. Initialize plugin with background handler DISABLED
+  // 1. Initialize plugin (handles foreground notifications only)
   await FlutterAwesomeNotification.initialize(
     config: FlutterAwesomeNotificationConfig(
       firebaseOptions: DefaultFirebaseOptions.currentPlatform,
 
-      // ⚠️ CRITICAL: Disable plugin's background handler
-      enableBackgroundHandler: false,
-
-      // Other configuration (still works)
+      // Standard notification channel configuration
       mainChannelId: 'custom_handler_example',
       mainChannelName: 'Custom Handler Example',
-      mainChannelDescription: 'Example with custom background handler',
+      mainChannelDescription:
+          'Example with custom background message processing',
 
-      // These callbacks still work for foreground/tap handling
+      // Callbacks work for all app states (foreground, background tap, terminated launch)
       onNotificationTap: (data) {
-        debugPrint('📱 Notification tapped: $data');
+        debugPrint('📱 Notification tapped (any app state): $data');
       },
 
       onNavigate: (pageName, id, data) {
         debugPrint('🔗 Navigate to: $pageName with id: $id');
+        // Your navigation logic here (GoRouter, Navigator, etc.)
       },
 
       enableLogging: true,
     ),
   );
 
-  // 3. Initialize Firebase
+  // 2. Initialize Firebase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  // 4. Register YOUR custom background handler
-  // This is now possible because plugin's handler is disabled
+  // 3. Register custom background message handler
+  // Plugin doesn't register its own handler, so you can add custom processing
   FirebaseMessaging.onBackgroundMessage(myCustomBackgroundHandler);
 
   debugPrint('✅ Custom background handler registered');
@@ -174,25 +184,27 @@ class _CustomHandlerDemoPageState extends State<CustomHandlerDemoPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '⚠️ Custom Background Handler Mode',
+                      '🔧 Custom Message Handler Example',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
-                        color: Colors.orange.shade800,
+                        color: Colors.blue.shade800,
                       ),
                     ),
                     const SizedBox(height: 8),
                     const Text(
-                      'Plugin\'s background handler is DISABLED.\n\n'
-                      'Your custom handler (myCustomBackgroundHandler) is registered.\n\n'
-                      'Features disabled:\n'
-                      '• Background filtering\n'
-                      '• Auto notification display in background\n'
-                      '• Background isolate handling\n\n'
-                      'Features still working:\n'
-                      '✅ Foreground notifications\n'
-                      '✅ Topic subscriptions\n'
-                      '✅ Token management\n'
-                      '✅ Tap handling',
+                      'This example demonstrates custom background message processing alongside the plugin\'s notification system.\n\n'
+                      '## Plugin Responsibilities:\n'
+                      '✅ Foreground notifications (when app is open)\n'
+                      '✅ Topic subscriptions & token management\n'
+                      '✅ Navigation handling (all app states)\n'
+                      '✅ Local notifications\n\n'
+                      '## System Responsibilities:\n'
+                      '✅ Background notifications (if FCM has `notification` field)\n'
+                      '✅ Terminated notifications (if FCM has `notification` field)\n\n'
+                      '## Custom Handler Responsibilities:\n'
+                      '✅ Background message processing\n'
+                      '✅ Database operations\n'
+                      '✅ Analytics & API calls',
                       style: TextStyle(fontSize: 14),
                     ),
                   ],
@@ -359,11 +371,22 @@ class _CustomHandlerDemoPageState extends State<CustomHandlerDemoPage> {
                     ),
                     const SizedBox(height: 8),
                     const Text(
-                      '1. Copy the FCM token above\n'
-                      '2. Go to Firebase Console → Cloud Messaging\n'
-                      '3. Send a test notification to this device\n'
-                      '4. Check the console logs to see your custom handler executing\n\n'
-                      'Background message logs will show:\n'
+                      '## Foreground Testing (App Open):\n'
+                      '1. Send FCM with `notification` field\n'
+                      '2. Plugin shows notification immediately\n'
+                      '3. Custom filtering may apply\n\n'
+                      '## Background Testing (App Minimized):\n'
+                      '1. Minimize app (go to home screen)\n'
+                      '2. Send FCM with `notification` field\n'
+                      '3. System shows notification\n'
+                      '4. Custom background handler processes message\n'
+                      '5. Tap notification → app opens with navigation\n\n'
+                      '## Terminated Testing (App Closed):\n'
+                      '1. Close app completely\n'
+                      '2. Send FCM with `notification` field\n'
+                      '3. System shows notification\n'
+                      '4. Tap notification → cold app launch with navigation\n\n'
+                      '**Console logs for background/terminated:**\n'
                       '🔔 Custom background handler received message\n'
                       '📱 Message ID: ...\n'
                       '📄 Title: ...\n'

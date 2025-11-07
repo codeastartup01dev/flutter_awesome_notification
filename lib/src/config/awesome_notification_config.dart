@@ -50,7 +50,6 @@ class FlutterAwesomeNotificationConfig {
   // =============================================================================
 
   /// Firebase options for the app
-  /// Required for background notification handling
   final FirebaseOptions firebaseOptions;
 
   // =============================================================================
@@ -133,19 +132,6 @@ class FlutterAwesomeNotificationConfig {
   /// Enable debug logging
   final bool enableLogging;
 
-  /// Enable Firebase background message handler
-  ///
-  /// If true (default), plugin registers its own background handler
-  /// If false, you can register your own custom background handler
-  ///
-  /// ⚠️ WARNING: When disabled, the following features won't work:
-  /// - Background notification filtering (self-notifications, chat room filtering)
-  /// - Automatic notification display in background/terminated state
-  /// - Background isolate notification handling
-  ///
-  /// Use case: Disable this if you need custom background message processing
-  /// that's incompatible with the plugin's approach
-  final bool enableBackgroundHandler;
 
   /// Request permission on initialization
   final bool requestPermissionOnInit;
@@ -161,11 +147,6 @@ class FlutterAwesomeNotificationConfig {
   /// Default notification body when none provided
   final String defaultNotificationBody;
 
-  /// Store current user ID in SharedPreferences for background filtering
-  final bool persistUserIdForBackgroundFiltering;
-
-  /// SharedPreferences key for user ID
-  final String userIdPreferenceKey;
 
   /// Environment identifier (dev, prod, etc.)
   final String? environment;
@@ -198,15 +179,12 @@ class FlutterAwesomeNotificationConfig {
 
     // Advanced
     this.enableLogging = kDebugMode,
-    this.enableBackgroundHandler = true,
     this.requestPermissionOnInit = true,
     this.showAlertInForeground = true,
     this.showBadgeInForeground = true,
     this.playSoundInForeground = true,
     this.defaultNotificationTitle = 'New Notification',
     this.defaultNotificationBody = 'You have a new notification',
-    this.persistUserIdForBackgroundFiltering = true,
-    this.userIdPreferenceKey = 'awesome_notification_user_id',
     this.environment,
   });
 
@@ -230,15 +208,12 @@ class FlutterAwesomeNotificationConfig {
     Map<String, String>? notificationTypeToPage,
     List<String>? allowedNotificationTypes,
     bool? enableLogging,
-    bool? enableBackgroundHandler,
     bool? requestPermissionOnInit,
     bool? showAlertInForeground,
     bool? showBadgeInForeground,
     bool? playSoundInForeground,
     String? defaultNotificationTitle,
     String? defaultNotificationBody,
-    bool? persistUserIdForBackgroundFiltering,
-    String? userIdPreferenceKey,
     String? environment,
   }) {
     return FlutterAwesomeNotificationConfig(
@@ -265,8 +240,6 @@ class FlutterAwesomeNotificationConfig {
       allowedNotificationTypes:
           allowedNotificationTypes ?? this.allowedNotificationTypes,
       enableLogging: enableLogging ?? this.enableLogging,
-      enableBackgroundHandler:
-          enableBackgroundHandler ?? this.enableBackgroundHandler,
       requestPermissionOnInit:
           requestPermissionOnInit ?? this.requestPermissionOnInit,
       showAlertInForeground:
@@ -279,10 +252,6 @@ class FlutterAwesomeNotificationConfig {
           defaultNotificationTitle ?? this.defaultNotificationTitle,
       defaultNotificationBody:
           defaultNotificationBody ?? this.defaultNotificationBody,
-      persistUserIdForBackgroundFiltering:
-          persistUserIdForBackgroundFiltering ??
-          this.persistUserIdForBackgroundFiltering,
-      userIdPreferenceKey: userIdPreferenceKey ?? this.userIdPreferenceKey,
       environment: environment ?? this.environment,
     );
   }

@@ -4,6 +4,25 @@ import 'package:flutter_awesome_notification/flutter_awesome_notification.dart';
 
 import 'firebase_options.dart';
 
+/// Example: Basic Notification Plugin Usage
+///
+/// This example demonstrates the core functionality of flutter_awesome_notification.
+///
+/// ## Notification Behavior by App State:
+/// - **Foreground**: Plugin shows notifications with custom filtering
+/// - **Background**: System shows notifications (FCM must have `notification` field)
+/// - **Terminated**: System shows notifications (FCM must have `notification` field)
+/// - **Navigation**: Works in all states via onNavigate callback
+///
+/// ## FCM Payload Requirements:
+/// For background/terminated delivery:
+/// ```json
+/// {
+///   "notification": {"title": "Title", "body": "Body"},
+///   "data": {"pageName": "route", "id": "123"}
+/// }
+/// ```
+
 // Example: Create a simple logger for demonstration
 // In a real app, you would use flutter_awesome_logger or your preferred logging solution
 class ExampleLogger {
@@ -83,7 +102,6 @@ class _NotificationDemoPageState extends State<NotificationDemoPage> {
   final _notificationService = FlutterAwesomeNotification.instance;
   String _fcmToken = 'Loading...';
   String _notificationStatus = 'Unknown';
-  String _userId = 'user123';
 
   @override
   void initState() {
@@ -97,9 +115,6 @@ class _NotificationDemoPageState extends State<NotificationDemoPage> {
 
     // Check notification status
     final enabled = await _notificationService.areNotificationsEnabled();
-
-    // Set user ID for filtering
-    await _notificationService.setCurrentUserId(_userId);
 
     setState(() {
       _fcmToken = token ?? 'Failed to get token';
@@ -156,24 +171,6 @@ class _NotificationDemoPageState extends State<NotificationDemoPage> {
             ),
             const SizedBox(height: 16),
 
-            // User Management Section
-            _buildSectionTitle('User Management'),
-            TextField(
-              decoration: const InputDecoration(
-                labelText: 'User ID',
-                border: OutlineInputBorder(),
-              ),
-              onChanged: (value) => _userId = value,
-              controller: TextEditingController(text: _userId),
-            ),
-            const SizedBox(height: 8),
-            _buildButton(
-              'Set User ID',
-              Icons.person,
-              () => _setUserId(_userId),
-            ),
-            const SizedBox(height: 16),
-
             // Permissions Section
             _buildSectionTitle('Permissions'),
             _buildButton(
@@ -202,7 +199,6 @@ class _NotificationDemoPageState extends State<NotificationDemoPage> {
             ),
             const Divider(),
             _buildStatusRow('Status', _notificationStatus),
-            _buildStatusRow('User ID', _userId),
             const SizedBox(height: 8),
             const Text(
               'FCM Token:',
@@ -292,14 +288,6 @@ class _NotificationDemoPageState extends State<NotificationDemoPage> {
   Future<void> _unsubscribeTopic(String topic) async {
     await _notificationService.unsubscribeFromTopic(topic);
     _showSnackBar('Unsubscribed from "$topic"!');
-  }
-
-  Future<void> _setUserId(String userId) async {
-    await _notificationService.setCurrentUserId(userId);
-    setState(() {
-      _userId = userId;
-    });
-    _showSnackBar('User ID set to: $userId');
   }
 
   Future<void> _requestPermissions() async {

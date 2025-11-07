@@ -2,18 +2,41 @@ import 'dart:convert';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../config/awesome_notification_config.dart';
-import '../handlers/background_notification_handler.dart';
 import '../handlers/foreground_notification_handler.dart';
 import '../setup/local_notification_manager.dart';
 import '../utils/notification_logger.dart';
 
 /// Main notification service for flutter_awesome_notification plugin
 ///
-/// Handles all app states: foreground, background, and terminated
-/// with intelligent filtering and navigation
+/// Handles foreground notifications and app state transitions with intelligent filtering.
+///
+/// ## App State Behavior:
+///
+/// ### Foreground (App Open & Visible)
+/// - ✅ Receives FCM messages via `FirebaseMessaging.onMessage`
+/// - ✅ Applies custom filtering (action steps, chat rooms, etc.)
+/// - ✅ Shows local notifications via `flutter_local_notifications`
+/// - ✅ Full navigation support via `onNavigate` callback
+///
+/// ### Background (App Minimized)
+/// - ✅ System shows notifications automatically (if FCM payload has `notification` field)
+/// - ❌ No custom filtering (plugin doesn't run in background)
+/// - ✅ Navigation works when tapped via `FirebaseMessaging.onMessageOpenedApp`
+///
+/// ### Terminated (App Closed)
+/// - ✅ System shows notifications automatically (if FCM payload has `notification` field)
+/// - ❌ No custom filtering (app not running)
+/// - ✅ Navigation works on cold launch via `FirebaseMessaging.getInitialMessage()`
+///
+/// ## FCM Payload Requirements:
+/// ```json
+/// {
+///   "notification": {"title": "Title", "body": "Body"}, // Required for background/terminated
+///   "data": {"pageName": "chat-room", "id": "123"}     // For navigation
+/// }
+/// ```
 class FlutterAwesomeNotification {
   static FlutterAwesomeNotification? _instance;
   static FlutterAwesomeNotificationConfig? _config;
@@ -67,24 +90,6 @@ class FlutterAwesomeNotification {
 
     _config = config;
 
-    // Register background message handler FIRST (if enabled)
-    if (config.enableBackgroundHandler) {
-      _registerBackgroundHandler();
-    } else {
-      NotificationLogger.w(
-        '⚠️ Background handler DISABLED - You can register your own custom handler',
-      );
-      NotificationLogger.w(
-        '⚠️ Plugin features disabled: background filtering, auto-display in background/terminated',
-      );
-    }
-
-    // Save environment to SharedPreferences for background handler
-    if (config.environment != null) {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('app_environment', config.environment!);
-    }
-
     // Create instance
     _instance = FlutterAwesomeNotification._(config: config);
 
@@ -122,20 +127,6 @@ class FlutterAwesomeNotification {
       );
     }
     return _config!;
-  }
-
-  /// Register background message handler
-  /// MUST be called before Firebase initialization
-  static void _registerBackgroundHandler() {
-    NotificationLogger.log('Registering background message handler');
-
-    FirebaseMessaging.onBackgroundMessage(
-      BackgroundNotificationHandler.handleBackgroundMessage,
-    );
-
-    NotificationLogger.log(
-      'Background message handler registered successfully',
-    );
   }
 
   /// Initialize local notifications
@@ -195,7 +186,7 @@ class FlutterAwesomeNotification {
     // Foreground messages
     FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
 
-    // Background messages (when app is opened from notification)
+    // Messages when app is opened from notification
     FirebaseMessaging.onMessageOpenedApp.listen(_handleMessageOpenedApp);
 
     // Check for initial message (app opened from terminated state)
@@ -217,15 +208,22 @@ class FlutterAwesomeNotification {
     }
   }
 
-  /// Handle message when app is opened from background notification
+  /// Handle message when app is opened from background notification tap
+  ///
+  /// Called when user taps a notification while app was in background.
+  /// Triggers navigation using the message data.
   void _handleMessageOpenedApp(RemoteMessage message) {
     NotificationLogger.log(
-      'App opened from background notification: ${message.messageId}',
+      'App opened from background notification tap: ${message.messageId}',
     );
     _handleNotificationTap(message.data);
   }
 
-  /// Check for initial message (app opened from terminated state)
+  /// Check for initial message when app is launched from terminated state
+  ///
+  /// When app is completely closed and user taps a notification, FCM provides
+  /// the initial message that launched the app. This method checks for it and
+  /// handles navigation accordingly.
   Future<void> _checkInitialMessage() async {
     final initialMessage = await FirebaseMessaging.instance.getInitialMessage();
 
@@ -270,7 +268,11 @@ class FlutterAwesomeNotification {
     }
   }
 
-  /// Handle notification tap
+  /// Handle notification tap and trigger navigation
+  ///
+  /// Called whenever a notification is tapped, regardless of app state
+  /// (foreground, background tap, or terminated state launch).
+  /// Triggers both the onNotificationTap callback and navigation.
   void _handleNotificationTap(Map<String, dynamic> data) {
     NotificationLogger.log('Notification tapped: $data');
 
@@ -324,27 +326,6 @@ class FlutterAwesomeNotification {
         error: e,
       );
       rethrow;
-    }
-  }
-
-  /// Set current user ID for notification filtering
-  /// This persists to SharedPreferences for background filtering
-  Future<void> setCurrentUserId(String? userId) async {
-    if (_config?.persistUserIdForBackgroundFiltering != true) {
-      return;
-    }
-
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      if (userId != null) {
-        await prefs.setString(_config!.userIdPreferenceKey, userId);
-        NotificationLogger.log('Saved user ID for filtering: $userId');
-      } else {
-        await prefs.remove(_config!.userIdPreferenceKey);
-        NotificationLogger.log('Removed user ID from filtering');
-      }
-    } catch (e) {
-      NotificationLogger.log('Error saving user ID', error: e);
     }
   }
 
