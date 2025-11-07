@@ -23,7 +23,7 @@ Add to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  flutter_awesome_notification: ^0.0.1
+  flutter_awesome_notification: ^0.0.2
 ```
 
 ### Basic Setup

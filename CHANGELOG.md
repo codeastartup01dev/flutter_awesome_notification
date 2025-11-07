@@ -1,4 +1,4 @@
-## 0.0.1
+## 0.0.2
 
 ### 🎉 Initial Release
 
@@ -6,10 +6,8 @@ A comprehensive, production-ready notification plugin for Flutter apps with Fire
 
 #### Features
 
-- ✅ **Full App State Coverage**: Foreground, background, and terminated state handling
-- ✅ **Intelligent Filtering**: Action step, chat room, and custom notification filtering
-- ✅ **Background Isolate Support**: Proper handling of terminated app notifications
-- ✅ **Navigation Integration**: Custom callbacks for navigation handling
+- ✅ **Foreground Notification Handling**: Intelligent filtering and display when app is active
+- ✅ **Navigation Integration**: Custom callbacks for seamless navigation handling
 - ✅ **Topic Subscriptions**: Easy FCM topic management
 - ✅ **Local Notifications**: Immediate and scheduled local notifications
 - ✅ **Highly Configurable**: Builder pattern with sensible defaults
@@ -24,13 +22,11 @@ A comprehensive, production-ready notification plugin for Flutter apps with Fire
   - `FlutterAwesomeNotification`: Main service orchestrator
   - `FlutterAwesomeNotificationConfig`: Configuration with sensible defaults
   - `ForegroundNotificationHandler`: Handles foreground message filtering
-  - `BackgroundNotificationHandler`: Handles background/terminated messages
   - `LocalNotificationManager`: Manages local notification display and scheduling
 
-- **Setup Classes**:
-  - Automatic Firebase initialization for background isolate
-  - Persistent storage support for background filtering
-  - Topic subscription management
+- **App State Handling**:
+  - Foreground: Plugin processes and displays notifications with filtering
+  - Background/Terminated: System displays notifications, plugin handles navigation on tap
 
 #### Example Usage
 
@@ -44,24 +40,43 @@ await FlutterAwesomeNotification.initialize(
 );
 ```
 
+#### FCM Payload Requirements
+
+For reliable notification delivery across all app states:
+
+```json
+{
+  "notification": {
+    "title": "New Message",
+    "body": "You have a new message"
+  },
+  "data": {
+    "pageName": "chat-room",
+    "id": "room123"
+  }
+}
+```
+
+**Note**: Include the `notification` field for consistent delivery.
+
 #### Documentation
 
-- Complete README with usage examples
+- Complete README with usage examples and app state explanations
 - Migration guide for existing notification implementations
-- Comprehensive example app
+- Comprehensive example apps (basic usage + custom handler)
 - Inline documentation for all public APIs
 
 #### Dependencies
 
-- `firebase_core: ^2.24.2`
-- `firebase_messaging: ^14.7.10`
-- `flutter_local_notifications: ^16.3.2`
-- `timezone: ^0.9.2`
-- `shared_preferences: ^2.2.2`
+- `firebase_core: ^3.8.0`
+- `firebase_messaging: ^15.1.5`
+- `flutter_local_notifications: ^19.1.0`
+- `timezone: ^0.10.1`
 
 #### Notes
 
 - Requires Flutter SDK `>=3.3.0`
 - Dart SDK `^3.8.1`
 - Must be initialized before `Firebase.initializeApp()`
-- Background handler registration is automatic
+- Handles foreground notifications with intelligent filtering
+- Navigation works seamlessly across all app states

@@ -1,7 +1,7 @@
 name: flutter_awesome_notification
 description: "A comprehensive notification plugin for Flutter with FCM, local notifications, and intelligent filtering."
-version: 0.0.1
-homepage: https://github.com/yourusername/flutter_awesome_notification
+version: 0.0.2
+homepage: https://github.com/codeastartup01dev/flutter_awesome_notification
 
 environment:
   sdk: ^3.8.1
