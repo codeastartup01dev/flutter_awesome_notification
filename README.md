@@ -34,7 +34,7 @@ Add to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  flutter_awesome_notification: ^2.0.0
+  flutter_awesome_notification: ^2.0.1
   firebase_core: ^3.8.0
 ```
 

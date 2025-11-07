@@ -1,3 +1,25 @@
+## 2.0.1
+
+### 🐛 Bug Fixes
+
+- **Fixed Plugin Declaration**: Removed incorrect native platform declarations from `pubspec.yaml`
+  - **Issue**: Plugin was incorrectly declared as requiring native Android/iOS code
+  - **Root Cause**: Plugin is pure Dart and only uses existing Flutter packages
+  - **Fix**: Removed platform declarations to prevent "main class not found" errors
+  - **Impact**: Eliminates Flutter pub get warnings about missing native plugin classes
+
+#### 📝 Technical Details
+
+The plugin now correctly identifies as a pure Dart package that leverages:
+- `firebase_core` (Dart)
+- `firebase_messaging` (Dart)
+- `flutter_local_notifications` (Dart)
+- `timezone` (Dart)
+
+No native platform code is required or included.
+
+---
+
 ## 2.0.0
 
 ### 🚨 BREAKING CHANGES - Improved Initialization Architecture
