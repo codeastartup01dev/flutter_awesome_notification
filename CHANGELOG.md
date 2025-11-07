@@ -1,3 +1,72 @@
+## 2.0.0
+
+### 🚨 BREAKING CHANGES - Improved Initialization Architecture
+
+This major update changes how the plugin is initialized to provide better error handling and flexibility. Firebase initialization is now decoupled from the plugin, allowing apps to have full control over their Firebase setup.
+
+#### 💥 Breaking Changes
+
+- **Firebase Initialization Change**: Plugin now accepts `FirebaseApp` instance instead of `FirebaseOptions`
+  - **Before**: Plugin initialized Firebase internally
+  - **After**: App must initialize Firebase FIRST, then pass the instance to the plugin
+  - This provides better control over Firebase initialization timing and configuration
+
+#### 🛡️ Enhanced Error Handling
+
+- **Comprehensive Error Messages**: Beautiful, formatted error messages with step-by-step solutions
+- **Firebase Validation**: Automatic validation of Firebase app initialization with helpful diagnostics
+- **Debug Console Suggestions**: Clear guidance when configuration issues occur
+
+#### 📝 Migration Guide (1.1.0 → 2.0.0)
+
+**Before (1.1.0):**
+```dart
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Plugin initialized Firebase internally
+  await FlutterAwesomeNotification.initialize(
+    config: FlutterAwesomeNotificationConfig(
+      firebaseOptions: DefaultFirebaseOptions.currentPlatform,
+      // ... other config
+    ),
+  );
+  
+  runApp(MyApp());
+}
+```
+
+**After (2.0.0):**
+```dart
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Step 1: Initialize Firebase FIRST
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  
+  // Step 2: Pass Firebase instance to plugin
+  await FlutterAwesomeNotification.initialize(
+    config: FlutterAwesomeNotificationConfig(
+      firebaseApp: Firebase.app(), // Pass initialized instance
+      // ... other config
+    ),
+  );
+  
+  runApp(MyApp());
+}
+```
+
+#### 🎯 Benefits
+
+- **Better Control**: Apps have full control over Firebase initialization
+- **Clear Errors**: If Firebase is not initialized, you get a helpful error with solution steps
+- **Flexibility**: Initialize Firebase with custom options before passing to plugin
+- **Debugging**: Better visibility into initialization order
+
+---
+
 ## 1.1.0
 
 ### ✨ Generic Plugin Refactoring

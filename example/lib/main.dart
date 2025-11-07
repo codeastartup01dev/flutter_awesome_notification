@@ -1,4 +1,3 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_awesome_notification/flutter_awesome_notification.dart';
 
@@ -7,6 +6,10 @@ import 'firebase_options.dart';
 /// Example: Basic Notification Plugin Usage
 ///
 /// This example demonstrates the core functionality of flutter_awesome_notification.
+///
+/// ## Important Setup Notes:
+/// - Firebase must be initialized BEFORE the notification plugin
+/// - Pass `Firebase.app()` to the config (not `FirebaseOptions`)
 ///
 /// ## Notification Behavior by App State:
 /// - **Foreground**: Plugin shows notifications with custom filtering
@@ -42,10 +45,13 @@ void main() async {
   // Create logger instance (in real app, use flutter_awesome_logger)
   final logger = ExampleLogger();
 
-  // Initialize the notification service BEFORE Firebase
+  // Step 1: Initialize Firebase FIRST (required by notification plugin)
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // Step 2: Initialize the notification service with Firebase instance
   await FlutterAwesomeNotification.initialize(
     config: FlutterAwesomeNotificationConfig(
-      firebaseOptions: DefaultFirebaseOptions.currentPlatform,
+      firebaseApp: Firebase.app(), // Pass initialized Firebase instance
       mainChannelId: 'awesome_notification_example',
       mainChannelName: 'Example Notifications',
       mainChannelDescription: 'Demonstration of flutter_awesome_notification',
@@ -68,9 +74,6 @@ void main() async {
           logger, // 🎯 Pass your logger instance for unified logging
     ),
   );
-
-  // Initialize Firebase
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   runApp(const MyApp());
 }

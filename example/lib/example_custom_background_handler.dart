@@ -1,4 +1,3 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_awesome_notification/flutter_awesome_notification.dart';
@@ -16,7 +15,9 @@ import 'firebase_options.dart';
 /// - ✅ System notifications in background/terminated
 /// - ✅ Navigation works in all app states
 ///
-/// ## Important Notes:
+/// ## Important Setup Notes:
+/// - Firebase must be initialized BEFORE the notification plugin
+/// - Pass `Firebase.app()` to the config (not `FirebaseOptions`)
 /// - Plugin handles ONLY foreground notifications
 /// - Background/terminated use system notifications (require `notification` field in FCM)
 /// - Custom handler processes messages but doesn't show notifications
@@ -60,10 +61,15 @@ Future<void> myCustomBackgroundHandler(RemoteMessage message) async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 1. Initialize plugin (handles foreground notifications only)
+  // Step 1: Initialize Firebase FIRST (required by notification plugin)
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  // Step 2: Initialize plugin with Firebase instance (handles foreground notifications only)
   await FlutterAwesomeNotification.initialize(
     config: FlutterAwesomeNotificationConfig(
-      firebaseOptions: DefaultFirebaseOptions.currentPlatform,
+      firebaseApp: Firebase.app(), // Pass initialized Firebase instance
 
       // Standard notification channel configuration
       mainChannelId: 'custom_handler_example',
@@ -85,10 +91,7 @@ void main() async {
     ),
   );
 
-  // 2. Initialize Firebase
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-
-  // 3. Register custom background message handler
+  // Step 3: Register custom background message handler
   // Plugin doesn't register its own handler, so you can add custom processing
   FirebaseMessaging.onBackgroundMessage(myCustomBackgroundHandler);
 

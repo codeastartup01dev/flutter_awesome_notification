@@ -5,7 +5,8 @@
 ///
 /// Handles foreground notifications and app state transitions with
 /// intelligent filtering and navigation.
-///
+library;
+
 /// ## Quick Start
 ///
 /// ```dart
@@ -14,10 +15,15 @@
 /// void main() async {
 ///   WidgetsFlutterBinding.ensureInitialized();
 ///
-///   // Initialize the notification plugin
+///   // Step 1: Initialize Firebase FIRST
+///   await Firebase.initializeApp(
+///     options: DefaultFirebaseOptions.currentPlatform,
+///   );
+///
+///   // Step 2: Initialize the notification plugin
 ///   await FlutterAwesomeNotification.initialize(
 ///     config: FlutterAwesomeNotificationConfig(
-///       firebaseOptions: DefaultFirebaseOptions.currentPlatform,
+///       firebaseApp: Firebase.app(), // Pass initialized Firebase instance
 ///       mainChannelId: 'my_app_channel',
 ///       mainChannelName: 'My App Notifications',
 ///       onNotificationTap: (data) {
@@ -28,10 +34,6 @@
 ///         print('Navigate to: $pageName with id: $id');
 ///       },
 ///     ),
-///   );
-///
-///   await Firebase.initializeApp(
-///     options: DefaultFirebaseOptions.currentPlatform,
 ///   );
 ///
 ///   runApp(MyApp());
@@ -52,7 +54,7 @@
 /// ## Configuration
 ///
 /// The plugin is configured through `FlutterAwesomeNotificationConfig` which provides:
-/// - Required: Firebase options
+/// - Required: Firebase app instance (must be initialized first)
 /// - Optional: Channel configuration, callbacks, filtering options
 /// - Defaults: Pre-configured for common use cases
 ///
@@ -84,8 +86,8 @@
 export 'src/core/flutter_awesome_notification.dart';
 export 'src/config/awesome_notification_config.dart';
 
-// Type exports
-export 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
+// Type exports - Firebase types needed by consuming apps
+export 'package:firebase_core/firebase_core.dart' show FirebaseApp, Firebase;
 export 'package:firebase_messaging/firebase_messaging.dart' show RemoteMessage;
 export 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationDetails, AndroidNotificationDetails, DarwinNotificationDetails;

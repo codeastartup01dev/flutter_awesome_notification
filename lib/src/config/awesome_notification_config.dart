@@ -44,13 +44,32 @@ abstract class ExternalLogger {
 /// Comprehensive configuration for FlutterAwesomeNotification
 ///
 /// Provides sensible defaults while allowing full customization
+///
+/// **IMPORTANT**: Initialize Firebase BEFORE creating this config:
+/// ```dart
+/// await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+/// 
+/// await FlutterAwesomeNotification.initialize(
+///   config: FlutterAwesomeNotificationConfig(
+///     firebaseApp: Firebase.app(), // Pass initialized instance
+///   ),
+/// );
+/// ```
 class FlutterAwesomeNotificationConfig {
   // =============================================================================
   // REQUIRED CONFIGURATION
   // =============================================================================
 
-  /// Firebase options for the app
-  final FirebaseOptions firebaseOptions;
+  /// Firebase app instance (must be initialized before passing)
+  /// 
+  /// **CRITICAL**: Call `Firebase.initializeApp()` first, then pass `Firebase.app()`
+  /// 
+  /// Example:
+  /// ```dart
+  /// await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  /// final firebaseApp = Firebase.app();
+  /// ```
+  final FirebaseApp firebaseApp;
 
   // =============================================================================
   // CHANNEL CONFIGURATION (with defaults)
@@ -136,8 +155,8 @@ class FlutterAwesomeNotificationConfig {
   final String? environment;
 
   const FlutterAwesomeNotificationConfig({
-    // Required
-    required this.firebaseOptions,
+    // Required - Firebase app must be initialized first
+    required this.firebaseApp,
 
     // Channel config with defaults
     this.mainChannelId = 'awesome_notification_channel',
@@ -166,7 +185,7 @@ class FlutterAwesomeNotificationConfig {
 
   /// Create a copy with modified properties
   FlutterAwesomeNotificationConfig copyWith({
-    FirebaseOptions? firebaseOptions,
+    FirebaseApp? firebaseApp,
     String? mainChannelId,
     String? mainChannelName,
     String? mainChannelDescription,
@@ -187,7 +206,7 @@ class FlutterAwesomeNotificationConfig {
     String? environment,
   }) {
     return FlutterAwesomeNotificationConfig(
-      firebaseOptions: firebaseOptions ?? this.firebaseOptions,
+      firebaseApp: firebaseApp ?? this.firebaseApp,
       mainChannelId: mainChannelId ?? this.mainChannelId,
       mainChannelName: mainChannelName ?? this.mainChannelName,
       mainChannelDescription:

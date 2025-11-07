@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
@@ -59,22 +60,26 @@ class FlutterAwesomeNotification {
 
   /// Initialize the notification service with configuration
   ///
-  /// IMPORTANT: Call this BEFORE Firebase.initializeApp() in your main()
+  /// **CRITICAL**: Initialize Firebase FIRST, then call this method
   ///
   /// Example:
   /// ```dart
   /// void main() async {
   ///   WidgetsFlutterBinding.ensureInitialized();
   ///
-  ///   // Initialize notification service
+  ///   // Step 1: Initialize Firebase FIRST
+  ///   await Firebase.initializeApp(
+  ///     options: DefaultFirebaseOptions.currentPlatform,
+  ///   );
+  ///
+  ///   // Step 2: Initialize notification service with Firebase instance
   ///   await FlutterAwesomeNotification.initialize(
   ///     config: FlutterAwesomeNotificationConfig(
-  ///       firebaseOptions: DefaultFirebaseOptions.currentPlatform,
+  ///       firebaseApp: Firebase.app(), // Pass initialized Firebase instance
   ///       onNotificationTap: (data) => print('Tapped: $data'),
   ///     ),
   ///   );
   ///
-  ///   await Firebase.initializeApp();
   ///   runApp(MyApp());
   /// }
   /// ```
@@ -87,6 +92,9 @@ class FlutterAwesomeNotification {
       );
       return _instance!;
     }
+
+    // Validate Firebase app is initialized
+    _validateFirebaseApp(config.firebaseApp);
 
     _config = config;
 
@@ -441,5 +449,116 @@ class FlutterAwesomeNotification {
     final settings = await FirebaseMessaging.instance.getNotificationSettings();
     return settings.authorizationStatus == AuthorizationStatus.authorized ||
         settings.authorizationStatus == AuthorizationStatus.provisional;
+  }
+
+  // =============================================================================
+  // PRIVATE VALIDATION METHODS
+  // =============================================================================
+
+  /// Validate that Firebase app is properly initialized
+  /// Provides helpful error messages with solution steps
+  static void _validateFirebaseApp(FirebaseApp firebaseApp) {
+    try {
+      // Check if Firebase app name is valid
+      final appName = firebaseApp.name;
+      NotificationLogger.log('Using Firebase app: $appName');
+
+      // Verify Firebase app is properly initialized by accessing options
+      final options = firebaseApp.options;
+      if (options.projectId.isEmpty) {
+        _throwFirebaseConfigError();
+      }
+
+      NotificationLogger.log('✅ Firebase app validated successfully');
+      NotificationLogger.log('   Project ID: ${options.projectId}');
+      NotificationLogger.log('   App ID: ${options.appId}');
+    } catch (e) {
+      _throwFirebaseNotInitializedError(e);
+    }
+  }
+
+  /// Throw detailed error when Firebase is not initialized
+  static Never _throwFirebaseNotInitializedError(Object error) {
+    final errorMessage =
+        '''
+╔══════════════════════════════════════════════════════════════════════════╗
+║  ❌ FIREBASE NOT INITIALIZED ERROR                                        ║
+╠══════════════════════════════════════════════════════════════════════════╣
+║                                                                          ║
+║  FlutterAwesomeNotification requires Firebase to be initialized FIRST.  ║
+║                                                                          ║
+║  📋 SOLUTION - Follow these steps:                                       ║
+║                                                                          ║
+║  1️⃣  Initialize Firebase FIRST in your main() function:                  ║
+║                                                                          ║
+║      void main() async {                                                ║
+║        WidgetsFlutterBinding.ensureInitialized();                       ║
+║                                                                          ║
+║        // Step 1: Initialize Firebase                                   ║
+║        await Firebase.initializeApp(                                    ║
+║          options: DefaultFirebaseOptions.currentPlatform,               ║
+║        );                                                                ║
+║                                                                          ║
+║        // Step 2: Initialize FlutterAwesomeNotification                 ║
+║        await FlutterAwesomeNotification.initialize(                     ║
+║          config: FlutterAwesomeNotificationConfig(                      ║
+║            firebaseApp: Firebase.app(), // Pass Firebase instance       ║
+║            // ... other config                                          ║
+║          ),                                                              ║
+║        );                                                                ║
+║                                                                          ║
+║        runApp(MyApp());                                                  ║
+║      }                                                                   ║
+║                                                                          ║
+║  2️⃣  Make sure you have added firebase_core to pubspec.yaml:            ║
+║                                                                          ║
+║      dependencies:                                                      ║
+║        firebase_core: ^3.8.0                                            ║
+║                                                                          ║
+║  3️⃣  Make sure you have Firebase configuration files:                   ║
+║                                                                          ║
+║      iOS:    ios/Runner/GoogleService-Info.plist                        ║
+║      Android: android/app/google-services.json                          ║
+║                                                                          ║
+╠══════════════════════════════════════════════════════════════════════════╣
+║  Original Error: $error
+╚══════════════════════════════════════════════════════════════════════════╝
+    ''';
+
+    throw StateError(errorMessage);
+  }
+
+  /// Throw error when Firebase config is invalid
+  static Never _throwFirebaseConfigError() {
+    final errorMessage = '''
+╔══════════════════════════════════════════════════════════════════════════╗
+║  ⚠️  INVALID FIREBASE CONFIGURATION                                      ║
+╠══════════════════════════════════════════════════════════════════════════╣
+║                                                                          ║
+║  The Firebase app was initialized but has invalid configuration.        ║
+║                                                                          ║
+║  📋 SOLUTION:                                                            ║
+║                                                                          ║
+║  1️⃣  Verify Firebase configuration files exist:                          ║
+║                                                                          ║
+║      iOS:    ios/Runner/GoogleService-Info.plist                        ║
+║      Android: android/app/google-services.json                          ║
+║                                                                          ║
+║  2️⃣  Regenerate configuration files from Firebase Console:              ║
+║                                                                          ║
+║      • Go to: https://console.firebase.google.com                       ║
+║      • Select your project                                              ║
+║      • Go to Project Settings                                           ║
+║      • Download configuration files for each platform                   ║
+║                                                                          ║
+║  3️⃣  Run FlutterFire CLI to configure Firebase:                         ║
+║                                                                          ║
+║      flutter pub global activate flutterfire_cli                        ║
+║      flutterfire configure                                              ║
+║                                                                          ║
+╚══════════════════════════════════════════════════════════════════════════╝
+    ''';
+
+    throw StateError(errorMessage);
   }
 }

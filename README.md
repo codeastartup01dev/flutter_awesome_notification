@@ -34,7 +34,8 @@ Add to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  flutter_awesome_notification: ^1.0.0
+  flutter_awesome_notification: ^2.0.0
+  firebase_core: ^3.8.0
 ```
 
 ### Basic Setup
@@ -48,10 +49,15 @@ import 'firebase_options.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize the notification plugin BEFORE Firebase
+  // Step 1: Initialize Firebase FIRST
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  // Step 2: Initialize the notification plugin with Firebase instance
   await FlutterAwesomeNotification.initialize(
     config: FlutterAwesomeNotificationConfig(
-      firebaseOptions: DefaultFirebaseOptions.currentPlatform,
+      firebaseApp: Firebase.app(), // Pass initialized Firebase instance
       mainChannelId: 'my_app_notifications',
       mainChannelName: 'My App Notifications',
       onNotificationTap: (data) {
@@ -63,16 +69,13 @@ void main() async {
     ),
   );
 
-  // Initialize Firebase
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-
   runApp(MyApp());
 }
 ```
 
 That's it! You now have full notification support with just a few lines of code.
+
+> **⚠️ Important**: Always initialize Firebase BEFORE the notification plugin. The plugin validates Firebase initialization and provides helpful error messages if Firebase is not ready.
 
 
 ## 📖 Configuration
@@ -80,10 +83,16 @@ That's it! You now have full notification support with just a few lines of code.
 ### Complete Configuration Example
 
 ```dart
+// Initialize Firebase first
+await Firebase.initializeApp(
+  options: DefaultFirebaseOptions.currentPlatform,
+);
+
+// Then initialize notification plugin
 await FlutterAwesomeNotification.initialize(
   config: FlutterAwesomeNotificationConfig(
-    // REQUIRED
-    firebaseOptions: DefaultFirebaseOptions.currentPlatform,
+    // REQUIRED - Pass initialized Firebase instance
+    firebaseApp: Firebase.app(),
 
     // Channel Configuration
     mainChannelId: 'my_app_channel',
