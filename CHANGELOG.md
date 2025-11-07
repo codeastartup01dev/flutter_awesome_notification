@@ -1,8 +1,8 @@
-## 0.0.2
+## 1.0.0
 
-### 🎉 Initial Release
+### 🚀 Stable Release
 
-A comprehensive, production-ready notification plugin for Flutter apps with Firebase Cloud Messaging (FCM) and local notifications.
+A comprehensive, production-ready notification plugin for Flutter apps with Firebase Cloud Messaging (FCM) and local notifications. This stable 1.0.0 release features a streamlined architecture focused on foreground notification handling with intelligent filtering and seamless navigation.
 
 #### Features
 

@@ -1,19 +1,30 @@
 # Flutter Awesome Notification 🔔
 
-A comprehensive, production-ready notification plugin for Flutter apps with Firebase Cloud Messaging (FCM) and local notifications. Handles foreground, background and terminated notifications and  navigation on notification tap.
+[![Pub Version](https://img.shields.io/pub/v/flutter_awesome_notification)](https://pub.dev/packages/flutter_awesome_notification)
+[![License: MIT](https://img.shields.io/badge/license-MIT-purple.svg)](https://opensource.org/licenses/MIT)
+[![Platform](https://img.shields.io/badge/platform-android%20%7C%20ios-blue.svg)](https://pub.dev/packages/flutter_awesome_notification)
+
+A comprehensive, production-ready notification plugin for Flutter apps with Firebase Cloud Messaging (FCM) and local notifications. Handles foreground notifications with intelligent filtering and seamless navigation across all app states.
 
 ## ✨ Features
 
-- ✅ **Foreground Notification Handling**: Intelligent foreground notification management
+- ✅ **Foreground Notification Handling**: Intelligent filtering and display when app is active
 - ✅ **Intelligent Filtering**: Action step, chat room, and custom notification filtering
-- ✅ **Navigation Integration**: Custom callbacks for navigation handling
+- ✅ **Navigation Integration**: Seamless navigation across all app states (foreground/background/terminated)
 - ✅ **Topic Subscriptions**: Easy FCM topic management
 - ✅ **Local Notifications**: Immediate and scheduled local notifications
 - ✅ **Highly Configurable**: Builder pattern with sensible defaults
 - ✅ **Minimal Code**: Easy setup with very little boilerplate
 - ✅ **FCM Token Management**: Automatic token handling and refresh
 - ✅ **Custom Logging**: Integrate with your preferred logging solution
-- ✅ **Type-Safe**: Full TypeScript-style type safety
+- ✅ **Type-Safe**: Full type safety with comprehensive configuration
+
+## 📦 Repository
+
+- **Repository**: [GitHub](https://github.com/codeastartup01dev/flutter_awesome_notification)
+- **Pub.dev**: [Package](https://pub.dev/packages/flutter_awesome_notification)
+- **Issues**: [GitHub Issues](https://github.com/codeastartup01dev/flutter_awesome_notification/issues)
+- **Changelog**: [CHANGELOG.md](https://github.com/codeastartup01dev/flutter_awesome_notification/blob/main/CHANGELOG.md)
 
 ## 🚀 Quick Start
 
@@ -23,7 +34,7 @@ Add to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  flutter_awesome_notification: ^0.0.2
+  flutter_awesome_notification: ^1.0.0
 ```
 
 ### Basic Setup
@@ -39,7 +50,7 @@ void main() async {
 
   // Initialize the notification plugin BEFORE Firebase
   await FlutterAwesomeNotification.initialize(
-    config: FlutterFlutterAwesomeNotificationConfig(
+    config: FlutterAwesomeNotificationConfig(
       firebaseOptions: DefaultFirebaseOptions.currentPlatform,
       mainChannelId: 'my_app_notifications',
       mainChannelName: 'My App Notifications',
@@ -70,7 +81,7 @@ That's it! You now have full notification support with just a few lines of code.
 
 ```dart
 await FlutterAwesomeNotification.initialize(
-  config: FlutterFlutterAwesomeNotificationConfig(
+  config: FlutterAwesomeNotificationConfig(
     // REQUIRED
     firebaseOptions: DefaultFirebaseOptions.currentPlatform,
 
@@ -145,7 +156,7 @@ For a basic setup, only Firebase options are required:
 
 ```dart
 await FlutterAwesomeNotification.initialize(
-  config: FlutterFlutterAwesomeNotificationConfig(
+  config: FlutterAwesomeNotificationConfig(
     firebaseOptions: DefaultFirebaseOptions.currentPlatform,
   ),
 );
@@ -326,57 +337,39 @@ The plugin provides multiple layers of filtering:
 3. **Custom Filtering**: Your own logic via callback
 4. **Type Filtering**: Filter by notification type
 
-## 🔧 Migration from Existing Service
+## 🔄 Migration Guide
 
-If you're using the `notification_service/` from challenge_app, here's how to migrate:
+### From Manual FCM Setup
 
-### Before (Old Code)
-
-```dart
-// In main.dart
-NotificationService.registerBackgroundMessageHandler();
-await Firebase.initializeApp();
-
-// In your app
-await getIt<NotificationService>().initialize();
-```
-
-### After (Plugin)
+If you're currently handling FCM manually, migration is straightforward:
 
 ```dart
-// In main.dart
+// Before (Manual Setup)
+FirebaseMessaging.onMessage.listen((message) {
+  // Custom filtering logic
+  // Manual notification display
+  // Navigation handling
+});
+
+FirebaseMessaging.onMessageOpenedApp.listen((message) {
+  // Navigation from background tap
+});
+
+FirebaseMessaging.getInitialMessage().then((message) {
+  // Navigation from terminated state
+});
+
+// After (Plugin)
 await FlutterAwesomeNotification.initialize(
   config: FlutterAwesomeNotificationConfig(
     firebaseOptions: DefaultFirebaseOptions.currentPlatform,
-    onNotificationTap: (data) => AutoNavigation.handleNotificationTap(data),
-    getCurrentUserId: () => getIt<UserCubit>().getUserModel()?.id,
-    isActiveChatRoom: (id) => getIt<MyAppCubit>().isActiveChatRoom(id),
-    chatPageRoute: RouteNames.chatPage,
-    logger: (msg, {error}) => logger.d(msg, error: error),
+    onNavigate: (pageName, id, data) {
+      // Your navigation logic here
+      // Works for all app states automatically
+    },
   ),
 );
-await Firebase.initializeApp();
-
-// That's it! No need for separate initialization
-```
-
-### Example: my_bottom_nav_bar.dart
-
-```dart
-Future<void> _initializeServices() async {
-  logger.i('MyBottomNavBar: Initializing services');
-  
-  try {
-    final notificationService = FlutterAwesomeNotification.instance;
-
-    // Optional: Subscribe to topics
-    // await notificationService.subscribeToTopic('challenges');
-    
-    logger.i('MyBottomNavBar: Services initialized');
-  } catch (e) {
-    logger.e('MyBottomNavBar: Error initializing services', error: e);
-  }
-}
+// That's it! Plugin handles everything else
 ```
 
 ## 📱 Server-Side Configuration
@@ -446,8 +439,17 @@ MIT License - see LICENSE file for details
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please open an issue or submit a PR.
+We welcome contributions! Please feel free to submit issues, feature requests, or pull requests.
 
-## 📞 Support
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-For issues, questions, or feature requests, please open an issue on GitHub.
+## 📞 Support & Issues
+
+- 📖 **Documentation**: [GitHub README](https://github.com/codeastartup01dev/flutter_awesome_notification#readme)
+- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/codeastartup01dev/flutter_awesome_notification/issues)
+- 💡 **Feature Requests**: [GitHub Issues](https://github.com/codeastartup01dev/flutter_awesome_notification/issues)
+- 📧 **General Questions**: Use GitHub Discussions

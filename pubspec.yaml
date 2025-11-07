@@ -1,7 +1,17 @@
 name: flutter_awesome_notification
 description: "A comprehensive notification plugin for Flutter with FCM, local notifications, and intelligent filtering."
-version: 0.0.2
-homepage: https://github.com/codeastartup01dev/flutter_awesome_notification
+version: 1.0.0
+homepage: https://pub.dev/packages/flutter_awesome_notification
+repository: https://github.com/codeastartup01dev/flutter_awesome_notification
+issue_tracker: https://github.com/codeastartup01dev/flutter_awesome_notification/issues
+documentation: https://github.com/codeastartup01dev/flutter_awesome_notification#readme
+
+topics:
+  - notification
+  - firebase
+  - fcm
+  - flutter
+  - local-notifications
 
 environment:
   sdk: ^3.8.1
@@ -34,25 +44,14 @@ dev_dependencies:
 # The following section is specific to Flutter packages.
 flutter:
   # This section identifies this Flutter project as a plugin project.
-  # The 'pluginClass' specifies the class (in Java, Kotlin, Swift, Objective-C, etc.)
-  # which should be registered in the plugin registry. This is required for
-  # using method channels.
-  # The Android 'package' specifies package in which the registered class is.
-  # This is required for using method channels on Android.
-  # The 'ffiPlugin' specifies that native code should be built and bundled.
-  # This is required for using `dart:ffi`.
-  # All these are used by the tooling to maintain consistency when
-  # adding or updating assets for this project.
+  # The plugin supports Android and iOS platforms.
   plugin:
     platforms:
-    # This plugin project was generated without specifying any
-    # platforms with the `--platform` argument. If you see the `some_platform` map below, remove it and
-    # then add platforms following the instruction here:
-    # https://flutter.dev/to/pubspec-plugin-platforms
-    # -------------------
-      some_platform:
-        pluginClass: somePluginClass
-    # -------------------
+      android:
+        package: com.example.flutter_awesome_notification
+        pluginClass: FlutterAwesomeNotificationPlugin
+      ios:
+        pluginClass: FlutterAwesomeNotificationPlugin
 
   # To add assets to your plugin package, add an assets section, like this:
   # assets:
