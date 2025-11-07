@@ -288,6 +288,57 @@ class FlutterAwesomeNotification {
     }
   }
 
+  /// Set navigation handler dynamically after initialization
+  ///
+  /// Use this when you want to handle navigation after the app is fully initialized
+  /// (e.g., after user authentication and navigation context is ready).
+  ///
+  /// Example:
+  /// ```dart
+  /// // In MyBottomNavBar after user is authenticated
+  /// FlutterAwesomeNotification.instance.setNavigationHandler(
+  ///   (pageName, id, data) {
+  ///     if (pageName != null) {
+  ///       AutoNavigation.navigateToPage(
+  ///         pageName: pageName,
+  ///         id: id,
+  ///         additionalParams: data,
+  ///         source: 'notification',
+  ///       );
+  ///     }
+  ///   },
+  /// );
+  /// ```
+  void setNavigationHandler(NavigationHandler? handler) {
+    NotificationLogger.log('Setting navigation handler dynamically');
+    _config = _config!.copyWith(onNavigate: handler);
+    NotificationLogger.log('Navigation handler updated');
+  }
+
+  /// Set custom filter dynamically after initialization
+  ///
+  /// Use this when you want to set up filtering after the app is fully initialized
+  /// (e.g., after dependency injection and cubits are ready).
+  ///
+  /// Example:
+  /// ```dart
+  /// // In MyBottomNavBar after DI is ready
+  /// FlutterAwesomeNotification.instance.setCustomFilter(
+  ///   (messageData) async {
+  ///     final currentUserId = getIt<UserCubit>().getUserModel()?.id;
+  ///     if (shouldFilter(messageData, currentUserId)) {
+  ///       return false; // Don't show
+  ///     }
+  ///     return true; // Show notification
+  ///   },
+  /// );
+  /// ```
+  void setCustomFilter(NotificationFilterCallback? filter) {
+    NotificationLogger.log('Setting custom filter dynamically');
+    _config = _config!.copyWith(customFilter: filter);
+    NotificationLogger.log('Custom filter updated');
+  }
+
   // =============================================================================
   // PUBLIC API METHODS
   // =============================================================================
@@ -330,7 +381,7 @@ class FlutterAwesomeNotification {
   }
 
   /// Show a local notification immediately
-  /// 
+  ///
   /// Optionally pass custom notificationDetails for different urgency levels
   Future<void> showLocalNotification({
     required int id,
@@ -349,7 +400,7 @@ class FlutterAwesomeNotification {
   }
 
   /// Schedule a local notification
-  /// 
+  ///
   /// Optionally pass custom notificationDetails for different urgency levels
   Future<void> scheduleNotification({
     required int id,
